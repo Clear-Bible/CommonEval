@@ -1,0 +1,19 @@
+identifier: testdata
+contributor: null
+created: '2023-10-01'
+creator: Sean
+datePublished: null
+description: This is a test
+hasPart:
+- testdata.jsonl
+language: eng
+license: CC-BY-NC-SA-4.0
+licenseNotes: ''
+metadataVersion: '3.2'
+publisher: null
+source: I made it up
+sourceProcess: ''
+subject: test subject
+taskPrompt: ''
+title: ''
+version: '1.0'

@@ -1,0 +1,18 @@
+identifier: bible_qa-death-bool
+contributor: Mike Brinker, Sean Boisen
+created: '2025-05-12'
+creator: Biblica
+datePublished: null
+description: Bible Q&A dataset, subset for death place converted to boolean
+hasPart:
+- bible_qa-death-bool.jsonl
+language: eng
+license: CC-BY-NC-SA-4.0
+publisher: null
+source: 'ACAI: people, groups, and places in the Bible'
+sourceProcess: Subset of bible_qa dataset for fact.death_place, converted to boolean
+  with some wrong answers.
+subject: Facts about biblical people and where they died
+taskPrompt: ''
+title: ''
+version: '1.0'
