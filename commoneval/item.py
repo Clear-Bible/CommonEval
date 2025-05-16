@@ -9,9 +9,21 @@ See tests/src/test_item.py for examples of how to use this class.
 from dataclasses import dataclass, field
 from enum import StrEnum
 import json
-from typing import Any, IO
+import sys
+from typing import Any, IO, Type
 
 # import slugify
+
+
+# deal with version differencs for StrEnum value checking
+def is_valid_enum_value(value: str, enum_class: Type[StrEnum]) -> bool:
+    """Check if a value is a valid member of an enum class."""
+    if sys.version_info >= (3, 12):
+        # Python 3.12+ allows direct containment
+        return value in enum_class
+    else:
+        # Python 3.11 and earlier require manual check
+        return value in enum_class._value2member_map_
 
 
 # enumerate values for moddality
@@ -110,8 +122,8 @@ class Item:
                     self.response in self._choiceof5
                 ), "Response is not a valid choice of 5."
             case Modality.TERNARY:
-                assert (
-                    self.response in Ternary
+                assert is_valid_enum_value(
+                    self.response, Ternary
                 ), "Response is not a valid ternary value."
             # open-ended responses
             case Modality.CLOZE:
