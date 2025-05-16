@@ -2,6 +2,10 @@
 
 ## UNRELEASED
 
+## 0.1.5
+
+- Fixed bug in `Dataset.read_items()`. 
+
 ## 0.1.4
 
 - Bug fix: checking values in a StrEnum changed with Python 3.12, but

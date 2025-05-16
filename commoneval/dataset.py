@@ -167,13 +167,13 @@ class Dataset:
 
     def read_items(self, basepath: Optional[Path] = None) -> None:
         """Read the items from the dataset files."""
-        # read the items from the dataset files
         if not basepath:
             basepath = self._localPath
-        allitems = []
+        # this drops any existing items
+        self.items = []
         for part in self.hasPart:
             with jsonlines.open(basepath / part, "r") as reader:
                 for obj in reader:
-                    allitems.append(Item(**obj))
-            print(f"Read {len(allitems)} items from {part}")
+                    self.items.append(Item(**obj))
+            print(f"Read {len(self.items)} items from {part}")
         return None
