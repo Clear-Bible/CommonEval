@@ -22,6 +22,8 @@ prompt, response, etc.
 ...   ds2 = dataset.Dataset.read_yaml(fp)
 >>> ds2 == ds
 True
+# read items into a dataset
+>>> ds.read_items()
 
 
 """
@@ -173,4 +175,5 @@ class Dataset:
             with jsonlines.open(basepath / part, "r") as reader:
                 for obj in reader:
                     allitems.append(Item(**obj))
-        return allitems
+            print(f"Read {len(allitems)} items from {part}")
+        return None
