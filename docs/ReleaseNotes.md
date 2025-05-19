@@ -2,6 +2,12 @@
 
 ## UNRELEASED
 
+## 0.1.6
+
+- Added documentation. 
+- Came to my senses about checking characters in identifiers.
+- Added `__len__()` to `Dataset` as number of `items`. 
+
 ## 0.1.5
 
 - Fixed bug in `Dataset.read_items()`. 
