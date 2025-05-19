@@ -1,0 +1,22 @@
+site_name: CommonEval
+repo_url: https://github.com/Clear-Bible/CommonEval
+site_description: data for LLM evaluation and supporting code
+site_author: Sean Boisen
+
+nav:
+  - Home: index.md
+  - Repository structure and philosophy: repository.md
+  - The `Dataset` class: dataset.md
+  - The `Item` class: item.md
+  - The `util` package: util.md
+plugins:
+  - search
+  - mkdocstrings:
+copyright: Maintained by Sean Boisen.
+theme:
+  name: material
+  feature:
+    tabs: true
+markdown_extensions:
+  - toc:
+      permalink: true
