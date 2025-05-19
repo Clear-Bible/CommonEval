@@ -9,11 +9,9 @@ See tests/src/test_item.py for examples of how to use this class.
 from dataclasses import dataclass, field
 from enum import StrEnum
 import json
+import re
 import sys
 from typing import Any, IO, Type
-
-# import slugify
-
 
 # deal with version differencs for StrEnum value checking
 def is_valid_enum_value(value: str, enum_class: Type[StrEnum]) -> bool:
@@ -24,7 +22,6 @@ def is_valid_enum_value(value: str, enum_class: Type[StrEnum]) -> bool:
     else:
         # Python 3.11 and earlier require manual check
         return value in enum_class._value2member_map_
-
 
 # enumerate values for moddality
 class Modality(StrEnum):
@@ -83,18 +80,7 @@ class Item:
 
     def __post_init__(self):
         """Post-initialization checks for the Item class."""
-        # bible_qa IDs aren't working here, so omit for now
-        # assert (
-        #     slugify.slugify(
-        #         self.identifier,
-        #         # i'd prefer to only allow lowercase but bible_qa IDs
-        #         # may be case-sensitive
-        #         lowercase=False,
-        #         # i'd also prefer to disallow hyphens but bible_qa includes them
-        #         regex_pattern=r"[^-a-zA-Z0-9_.]+",
-        #     )
-        #     == self.identifier
-        # ), f"Identifier {self.identifier} has invalid characters."
+        assert re.fullmatch(r"[-a-zA-Z0-9_.]+", self.identifier), f"Identifier {self.identifier} has invalid characters."
         if self.modality != Modality.BOOLEAN:
             assert len(self.response) > 0, "Response is empty."
         match self.modality:
