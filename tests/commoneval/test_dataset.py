@@ -41,6 +41,7 @@ class TestDataset:
         assert self.ds.taskPrompt == ""
         assert self.ds.title == ""
         assert self.ds.version == "1.0"
+        assert len(self.ds) == 0
 
     def test_bad_identifier(self) -> None:
         """Test the initialization of the Dataset class with a bad identifier."""
@@ -92,3 +93,7 @@ class TestDataset:
         with (thispath / "testdata.yaml").open("r") as f:
             thisds = Dataset.read_yaml(f)
         assert thisds == self.ds
+
+
+# To add:
+# - read_lines()
