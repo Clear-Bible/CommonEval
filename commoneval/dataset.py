@@ -31,10 +31,10 @@ True
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
+import re
 from typing import Any, IO, Optional
 
 import jsonlines
-import slugify
 import yaml
 
 from commoneval import DATAPATH
@@ -88,9 +88,8 @@ class Dataset:
 
     def __post_init__(self) -> None:
         """Check values after initialization."""
-        assert (
-            slugify.slugify(self.identifier, regex_pattern=self._slugify_regex)
-            == self.identifier
+        assert re.fullmatch(
+            r"[-a-zA-Z0-9_.]+", self.identifier
         ), f"Identifier {self.identifier} has invalid characters."
         # check that the created date is in the past
         assert self.created <= date.today(), "Created date must be in the past."
@@ -107,14 +106,17 @@ class Dataset:
         if self.datePublished:
             # check that the date published is in the past
             assert (
-                self.datePublished <= date.today()
-                and self.datePublished >= self.created
+                self.datePublished <= date.today() and self.datePublished >= self.created
             ), "Date published must be in the past and after created."
         self._localPath = DATAPATH / self.language / self.identifier
 
     def __repr__(self) -> str:
         """Return a string representation of the Dataset."""
         return f"<Dataset({self.identifier!r}, {self.subject!r})>"
+
+    def __len__(self) -> int:
+        """Return the number of items in the Dataset."""
+        return len(self.items)
 
     def asdict(self) -> dict[str, Any]:
         """Return the Dataset as a dictionary for serialization."""
@@ -123,9 +125,7 @@ class Dataset:
             "contributor": self.contributor,
             "created": self.created.isoformat(),
             "creator": self.creator,
-            "datePublished": (
-                self.datePublished.isoformat() if self.datePublished else None
-            ),
+            "datePublished": self.datePublished.isoformat() if self.datePublished else None,
             "description": self.description,
             "hasPart": self.hasPart,
             "language": self.language,
