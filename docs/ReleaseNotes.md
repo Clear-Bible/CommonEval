@@ -2,6 +2,11 @@
 
 ## UNRELEASED
 
+## 0.1.7
+
+- Downgraded mkdocs* dependencies for broader compatibility: not sure
+  what principled values to use. 
+
 ## 0.1.6
 
 - Added documentation. 
