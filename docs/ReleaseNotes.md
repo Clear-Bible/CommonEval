@@ -2,6 +2,10 @@
 
 ## UNRELEASED
 
+## 0.1.8
+
+- Implemented fallback for Python < 3.11 and `StrEnum`. 
+
 ## 0.1.7
 
 - Downgraded mkdocs* dependencies for broader compatibility: not sure
