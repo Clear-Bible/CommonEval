@@ -17,9 +17,11 @@ jsonlines = "^4.0.0"
 python-slugify = "^8.0.4"
 dacite = "^1.9.2"
 pyyaml = "^6.0.2"
-mkdocs = "^1.6.1"
-mkdocs-material = "^9.6.14"
-mkdocstrings = "^0.29.1"
+# these are downgraded for compatability: not sure what the proper values
+# ought to be
+mkdocs = "^1.3.0"
+mkdocs-material = "^8.3.8"
+mkdocstrings = "^0.18.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
