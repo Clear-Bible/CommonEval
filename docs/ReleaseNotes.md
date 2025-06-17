@@ -2,6 +2,15 @@
 
 ## UNRELEASED
 
+## 0.1.10
+
+- Forgot to remove some dependencies.
+
+## 0.1.9
+
+- Added code to util for f1, precision, and recall.
+- Added tests for the above and gleu. 
+
 ## 0.1.8
 
 - Implemented fallback for Python < 3.11 and `StrEnum`. 

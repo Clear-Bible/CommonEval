@@ -1,6 +1,6 @@
 [project]
 name = "commoneval"
-version = "0.1.8"
+version = "0.1.10"
 description = ""
 authors = [
     {name = "Sean Boisen",email = "sean.boisen@biblica.com"}
@@ -14,8 +14,6 @@ packages = [
 [tool.poetry.dependencies]
 Python = ">=3.10"
 jsonlines = "^4.0.0"
-python-slugify = "^8.0.4"
-dacite = "^1.9.2"
 pyyaml = "^6.0.2"
 # these are downgraded for compatability: not sure what the proper values
 # ought to be
