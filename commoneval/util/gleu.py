@@ -16,7 +16,7 @@
 from collections import Counter
 
 
-def gleu(seq1: list[str], seq2: list[str], n: int = 2) -> dict[str, int]:
+def gleu(seq1: tuple[str], seq2: tuple[str], n: int = 2) -> dict[str, int]:
     def ngrams(seq, n):
         return [tuple(seq[i : i + n]) for i in range(len(seq) - n + 1)]
 
