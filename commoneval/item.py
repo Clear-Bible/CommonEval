@@ -113,11 +113,11 @@ class Item:
                 ), "Response is not a valid choice of 3."
             case Modality.CHOICEOF4:
                 assert (
-                    self.response in self._choiceof4
+                    self.response in self._choiceof4values
                 ), "Response is not a valid choice of 4."
             case Modality.CHOICEOF5:
                 assert (
-                    self.response in self._choiceof5
+                    self.response in self._choiceof5values
                 ), "Response is not a valid choice of 5."
             case Modality.TERNARY:
                 assert is_valid_enum_value(

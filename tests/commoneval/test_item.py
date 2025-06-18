@@ -27,7 +27,7 @@ class TestItem:
         assert self.i0.taskPrompt == ""
 
     def test_ternary(self) -> None:
-        """Test the initialization of the Dataset class with a ternary modality."""
+        """Test the initialization of the Item class with a ternary modality."""
         _: Item = Item(
             identifier="testdata.1",
             modality=Modality.TERNARY,
@@ -45,6 +45,69 @@ class TestItem:
             modality=Modality.TERNARY,
             prompt="Is this a test?",
             response="Unknown",
+        )
+
+    def test_choiceof2(self) -> None:
+        """Test the initialization of the Item class with a CHOICEOF2 modality."""
+        item: Item = Item(
+            identifier="testdata.1",
+            modality=Modality.CHOICEOF2,
+            prompt="Is this a test? A) Yes, it is. B) No, it isn't.",
+            response="A",
+        )
+        assert (
+            repr(item) == "<Item('testdata.1', choiceof2): 'Is this a test? A...'->'A'>"
+        )
+        assert item.asdict() == {
+            "identifier": "testdata.1",
+            "modality": "choiceof2",
+            "prompt": "Is this a test? A) Yes, it is. B) No, it isn't.",
+            "response": "A",
+        }
+
+    def test_choiceof3(self) -> None:
+        """Test the initialization of the Item class with a CHOICEOF3 modality."""
+        item: Item = Item(
+            identifier="testdata.1",
+            modality=Modality.CHOICEOF3,
+            prompt="Is this a test? A) Yes, it is. B) No, it isn't. C) Maybe.",
+            response="A",
+        )
+        assert (
+            repr(item) == "<Item('testdata.1', choiceof3): 'Is this a test? A...'->'A'>"
+        )
+        assert item.asdict() == {
+            "identifier": "testdata.1",
+            "modality": "choiceof3",
+            "prompt": "Is this a test? A) Yes, it is. B) No, it isn't. C) Maybe.",
+            "response": "A",
+        }
+
+    def test_choiceof4(self) -> None:
+        """Test the initialization of the Item class with a CHOICEOF4 modality."""
+        item: Item = Item(
+            identifier="testdata.1",
+            modality=Modality.CHOICEOF4,
+            prompt="Is this a test? A) Yes, it is. B) No, it isn't. C) Maybe. D) I don't know.",
+            response="A",
+        )
+        assert (
+            repr(item) == "<Item('testdata.1', choiceof4): 'Is this a test? A...'->'A'>"
+        )
+        assert item.asdict() == {
+            "identifier": "testdata.1",
+            "modality": "choiceof4",
+            "prompt": "Is this a test? A) Yes, it is. B) No, it isn't. C) Maybe. D) I don't know.",
+            "response": "A",
+        }
+
+    def test_choiceof5(self) -> None:
+        """Test the initialization of the Item class with a CHOICEOF5 modality."""
+        _: Item = Item(
+            identifier="testdata.1",
+            modality=Modality.CHOICEOF5,
+            prompt="Is this a test? A) Yes, it is. B) No, it isn't. C) Maybe. D) I don't know. E) Absolutely!",
+            response="E",
         )
 
     # def test_bad_identifier(self) -> None:
