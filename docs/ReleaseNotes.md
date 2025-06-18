@@ -2,6 +2,10 @@
 
 ## UNRELEASED
 
+## 0.1.11
+
+- Fixed bugs in `__post_init__()` for `Item` class; added tests. 
+
 ## 0.1.10
 
 - Forgot to remove some dependencies.
