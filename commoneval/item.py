@@ -11,6 +11,7 @@ import json
 import re
 import sys
 from typing import Any, IO, Type
+from warnings import warn
 
 try:
     from enum import StrEnum  # Available in Python 3.11+
@@ -93,8 +94,8 @@ class Item:
         assert re.fullmatch(
             r"[-a-zA-Z0-9_.]+", self.identifier
         ), f"Identifier {self.identifier} has invalid characters."
-        if self.modality != Modality.BOOLEAN:
-            assert len(self.response) > 0, "Response is empty."
+        if self.modality != Modality.BOOLEAN and len(self.response) == 0:
+            warn("Response is empty.")
         match self.modality:
             # closed-set responses
             case Modality.BOOLEAN:
@@ -157,6 +158,10 @@ class Item:
             outdict["support"] = self.support
         if self.taskPrompt:
             outdict["taskPrompt"] = self.taskPrompt
+        if self._otherargs:
+            # this assumes no collisions with existing keys and that
+            # values are JSON-serializable
+            outdict.update(self._otherargs)
         return outdict
 
     def write_jsonline(self, fp: IO[str]) -> str:
