@@ -2,6 +2,13 @@
 
 ## UNRELEASED
 
+## 0.1.12
+
+- Minor updates to item.py: warn, not error, for empty response;
+  `asdict()` now outputs `_otherargs`. 
+- Added makeitems.py for easier generation of benchmark files
+
+
 ## 0.1.11
 
 - Fixed bugs in `__post_init__()` for `Item` class; added tests. 
