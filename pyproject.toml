@@ -1,6 +1,6 @@
 [project]
 name = "commoneval"
-version = "0.1.12"
+version = "0.2.0"
 description = ""
 authors = [
     {name = "Sean Boisen",email = "sean.boisen@biblica.com"}
@@ -20,6 +20,7 @@ pyyaml = "^6.0.2"
 mkdocs = "^1.3.0"
 mkdocs-material = "^8.3.8"
 mkdocstrings = "^0.18.1"
+unicodecsv = "^0.14.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
