@@ -13,6 +13,7 @@ Example usage:
 
 """
 
+import unicodecsv
 from pathlib import Path
 
 import item
@@ -35,7 +36,7 @@ class QuestionWriter:
         self.id_index: int = 0
         with outpath.open("w", encoding="utf-8") as f:
             for question in questions:
-                itm = item.Item(
+                itm = item.OpenEndedItem(
                     identifier=f"{identifier_prefix}{self.id_index:04d}",
                     prompt=question,
                     modality=modality,
@@ -64,7 +65,7 @@ class SubjectQuestionWriter:
         self.id_index: int = 0
         with outpath.open("w", encoding="utf-8") as f:
             for subject, question in items:
-                itm = item.Item(
+                itm = item.OpenEndedItem(
                     identifier=f"{identifier_prefix}{self.id_index:04d}",
                     prompt=question,
                     modality=modality,
@@ -73,3 +74,45 @@ class SubjectQuestionWriter:
                 )
                 itm.write_jsonline(f)
                 self.id_index += 1
+
+
+class CSVMCQuestionWriter:
+    """Read multiple questions from CSV and write items to a JSONL file.
+
+    Assumes some standard column headers and 4 answer choices.
+
+    """
+
+    def __init__(
+        self,
+        inpath: Path,
+        outpath: Path,
+        modality: item.Modality = item.Modality.CHOICEOF4,
+    ) -> None:
+        """Initialize the writer."""
+        with inpath.open("rb") as f:
+            reader = unicodecsv.DictReader(f)
+            self.items = [row for row in reader]
+        with outpath.open("w", encoding="utf-8") as f:
+            for itemdict in self.items:
+                # print(itemdict["correct_answer"])
+                # choices = {itemdict[letter] for letter in ["A", "B", "C", "D"]}
+                # print(choices)
+                try:
+                    itemdict["correct_answer"] = int(itemdict["correct_answer"])
+                except ValueError:
+                    raise ValueError(
+                        f"correct_answer must be int: got {itemdict['correct_answer']}."
+                    )
+                itm = item.ClosedSetItem(
+                    identifier=itemdict["id"],
+                    modality=modality,
+                    prompt=itemdict["question"],
+                    response=itemdict["correct_answer"],
+                    choices=[itemdict[str(i)] for i in range(4)],
+                    _otherargs={
+                        "bias_type": itemdict.get("bias_type", ""),
+                        "rationale": itemdict.get("rationale", ""),
+                    },
+                )
+                itm.write_jsonline(f)
