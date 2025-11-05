@@ -38,7 +38,7 @@ import jsonlines
 import yaml
 
 from commoneval import DATAPATH
-from commoneval.item import Item
+from commoneval import item
 
 
 @dataclass
@@ -65,7 +65,7 @@ class Dataset:
     # when the dataset was published (if published)
     datePublished: Optional[date] = None
     # populate with read_items()
-    items: list[Item] = field(default_factory=list)
+    items: list[item.BaseItem] = field(default_factory=list)
     # ISO 639-3 code
     language: str = "eng"
     # should be a standard license identifier
@@ -106,7 +106,8 @@ class Dataset:
         if self.datePublished:
             # check that the date published is in the past
             assert (
-                self.datePublished <= date.today() and self.datePublished >= self.created
+                self.datePublished <= date.today()
+                and self.datePublished >= self.created
             ), "Date published must be in the past and after created."
         self._localPath = DATAPATH / self.language / self.identifier
 
@@ -125,7 +126,9 @@ class Dataset:
             "contributor": self.contributor,
             "created": self.created.isoformat(),
             "creator": self.creator,
-            "datePublished": self.datePublished.isoformat() if self.datePublished else None,
+            "datePublished": (
+                self.datePublished.isoformat() if self.datePublished else None
+            ),
             "description": self.description,
             "hasPart": self.hasPart,
             "language": self.language,
@@ -165,8 +168,15 @@ class Dataset:
         # write to file
         fp.write(yaml.dump(self.asdict(), sort_keys=False))
 
-    def read_items(self, basepath: Optional[Path] = None) -> None:
-        """Read the items from the dataset files."""
+    def read_items(
+        self, itemclass: item.BaseItem, basepath: Optional[Path] = None
+    ) -> None:
+        """Read the items from the dataset files.
+
+        Args:
+            itemclass: The class to use for the items (e.g., item.ClosedSetItem).
+
+        """
         if not basepath:
             basepath = self._localPath
         # this drops any existing items
@@ -174,6 +184,6 @@ class Dataset:
         for part in self.hasPart:
             with jsonlines.open(basepath / part, "r") as reader:
                 for obj in reader:
-                    self.items.append(Item(**obj))
+                    self.items.append(itemclass(**obj))
             print(f"Read {len(self.items)} items from {part}")
         return None
