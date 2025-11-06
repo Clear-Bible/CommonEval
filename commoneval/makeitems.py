@@ -13,8 +13,10 @@ Example usage:
 
 """
 
-import unicodecsv
+from collections import UserDict
 from pathlib import Path
+
+import unicodecsv
 
 import item
 
@@ -70,18 +72,35 @@ class SubjectQuestionWriter:
                     prompt=question,
                     modality=modality,
                     response="",
-                    _otherargs={"subject": subject},
+                    otherargs={"subject": subject},
                 )
                 itm.write_jsonline(f)
                 self.id_index += 1
 
 
-class CSVMCQuestionWriter:
+class CSVMCQuestionWriter(UserDict):
     """Read multiple questions from CSV and write items to a JSONL file.
 
     Assumes some standard column headers and 4 answer choices.
 
     """
+
+    # this will depend on the CSV format
+    header_map: dict[str, str] = {
+        "Question_Number": "identifier",
+        "Question_Text": "prompt",
+        "Option_A": "0",
+        "Option_B": "1",
+        "Option_C": "2",
+        "Option_D": "3",
+        "Correct_Answer": "response",
+    }
+    other_fields_map: dict[str, str] = {
+        "Religious_Tradition": "Religious_Tradition",
+        "Score": "Score",
+        "Feedback": "Feedback",
+    }
+    letter_answers: tuple[str, ...] = ("A", "B", "C", "D")
 
     def __init__(
         self,
@@ -90,29 +109,44 @@ class CSVMCQuestionWriter:
         modality: item.Modality = item.Modality.CHOICEOF4,
     ) -> None:
         """Initialize the writer."""
+        super().__init__()
         with inpath.open("rb") as f:
             reader = unicodecsv.DictReader(f)
-            self.items = [row for row in reader]
+            self.rowitems = [row for row in reader]
         with outpath.open("w", encoding="utf-8") as f:
-            for itemdict in self.items:
+            for itemdict in self.rowitems:
                 # print(itemdict["correct_answer"])
                 # choices = {itemdict[letter] for letter in ["A", "B", "C", "D"]}
                 # print(choices)
                 try:
-                    itemdict["correct_answer"] = int(itemdict["correct_answer"])
+                    # this assumes single letters, with A = first choice
+                    # and computes the offset from there
+                    assert (
+                        itemdict["Correct_Answer"] in self.letter_answers
+                    ), f"Expected letter answer: {itemdict['Correct_Answer']}"
+                    ans_index = ord(itemdict["Correct_Answer"].lower()) - ord("a")
                 except ValueError:
                     raise ValueError(
-                        f"correct_answer must be int: got {itemdict['correct_answer']}."
+                        f"correct_answer must resolve to an int: got {itemdict['Correct_Answer']}."
                     )
-                itm = item.ClosedSetItem(
-                    identifier=itemdict["id"],
-                    modality=modality,
-                    prompt=itemdict["question"],
-                    response=itemdict["correct_answer"],
-                    choices=[itemdict[str(i)] for i in range(4)],
-                    _otherargs={
-                        "bias_type": itemdict.get("bias_type", ""),
-                        "rationale": itemdict.get("rationale", ""),
-                    },
-                )
+                itemargs = {
+                    # identifier
+                    self.header_map["Question_Number"]: itemdict["Question_Number"],
+                    "modality": modality,
+                    # prompt
+                    self.header_map["Question_Text"]: itemdict["Question_Text"],
+                    # response
+                    self.header_map["Correct_Answer"]: ans_index,
+                    "choices": [
+                        itemdict[choice]
+                        for choice in ["Option_A", "Option_B", "Option_C", "Option_D"]
+                    ],
+                }
+                for field, key in self.other_fields_map.items():
+                    if "otherargs" not in itemargs:
+                        itemargs["otherargs"]: dict[str, str] = {}
+                    if field in itemdict:
+                        itemargs["otherargs"][key] = itemdict[field]
+                itm = item.ClosedSetItem(**itemargs)
+                self.data[itm.identifier] = itm
                 itm.write_jsonline(f)
