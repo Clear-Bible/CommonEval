@@ -25,7 +25,7 @@ All items can be serialized to dictionaries and JSONL format:
 
 ```python
 # Convert to dictionary
-item_dict = item.asdict()
+item_dict = item.as_dict()
 
 # Write to JSONL file
 with open("items.jsonl", "w") as f:
@@ -110,7 +110,7 @@ class BaseItem:
     # The difficulty of the item, from 0.0 to 1.0
     difficulty: float = 0.0
     # stash other data here if needed
-    _otherargs: dict[str, Any] = field(default_factory=dict)
+    otherargs: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
         """Post-initialization checks for the BaseItem class."""
@@ -149,29 +149,29 @@ class BaseItem:
         else:
             responsestr = self.response
 
-        return f"<Item({self.identifier!r}, {self.modality}): {promptstr!r}->{responsestr!r}>"
+        return f"<{self.__class__.__name__}({self.identifier!r}, {self.modality}): {promptstr!r}->{responsestr!r}>"
 
-    def asdict(self) -> dict[str, Any]:
+    def as_dict(self) -> dict[str, Any]:
         """Return the Item as a dictionary for serialization."""
         outdict = {
             "identifier": self.identifier,
-            "modality": self.modality.value,
             "prompt": self.prompt,
             "response": self.response,
+            "modality": self.modality.value,
         }
-        if self.support:
-            outdict["support"] = self.support
         if self.taskPrompt:
             outdict["taskPrompt"] = self.taskPrompt
-        if self._otherargs:
+        if self.support:
+            outdict["support"] = self.support
+        if self.otherargs:
             # this assumes no collisions with existing keys and that
             # values are JSON-serializable
-            outdict.update(self._otherargs)
+            outdict["otherargs"] = self.otherargs
         return outdict
 
     def write_jsonline(self, fp: IO[str]) -> str:
         """Return the Item as a JSONL string."""
-        json.dump(self.asdict(), fp)
+        json.dump(self.as_dict(), fp)
         fp.write("\n")
 
 
@@ -264,7 +264,7 @@ class ClosedSetItem(BaseItem):
                 ), "Modality does not match 5 choices."
 
     # ToDo: add a randomize parameter to shuffle choices
-    def asdict(self, style: str = "letter") -> dict[str, Any]:
+    def as_dict(self, style: str = "letter") -> dict[str, Any]:
         """Return the ClosedSetItem as a dictionary for serialization.
 
         Formats the choices according to the specified style for the
@@ -273,7 +273,7 @@ class ClosedSetItem(BaseItem):
         choices.
 
         """
-        outdict = super().asdict()
+        outdict = super().as_dict()
         # only letter for now
         assert style in ("letter"), f"Invalid style {style!r}, must be 'letter'."
         choicedict = dict(zip(["A", "B", "C", "D", "E"], self.choices))
@@ -288,6 +288,9 @@ class ClosedSetItem(BaseItem):
             f"Choose one of the following {len(self.choices)} options: {formatted}. Return only the single letter corresponding to your choice, one of {choices_prefix}."
         )
         outdict["response"] = choiceletters[self.response]
+        if "otherargs" not in outdict:
+            outdict["otherargs"] = {}
+        outdict["otherargs"]["choices"] = self.choices
         return outdict
 
 
