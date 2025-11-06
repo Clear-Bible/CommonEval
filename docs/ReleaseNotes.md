@@ -2,6 +2,21 @@
 
 ## UNRELEASED
 
+### 0.2.1
+
+**Test Updates:**
+- Updated all tests to use `as_dict()` method name (changed from `asdict()` in 0.2.0)
+- Updated all `__repr__()` test expectations to use class-specific names (e.g., `<BooleanItem(...)>` instead of `<Item(...)>`)
+- Fixed JSON field ordering in write_jsonline tests
+- All 47 tests pass (36 item + 5 dataset + 6 utility)
+
+**Documentation:**
+- Updated `CLAUDE.md` to document the Item class hierarchy with all four subclasses
+- Updated `CLAUDE.md` modality system section to map modalities to their corresponding Item classes
+- Added ClosedSetItem serialization behavior documentation (letter conversion, taskPrompt generation)
+- Updated validation constraints section with BaseItem instantiation prevention and ClosedSetItem requirements
+- Updated test command examples to use new class names
+
 ### 0.2.0 (Breaking Changes)
 
 **Major Refactoring: Item Class Hierarchy**
@@ -52,7 +67,7 @@ The `Item` class has been refactored into a proper class hierarchy with type-saf
 ## 0.1.12
 
 - Minor updates to item.py: warn, not error, for empty response;
-  `asdict()` now outputs `_otherargs`. 
+  `asdict()` now outputs `_otherargs`.
 - Added makeitems.py for easier generation of benchmark files
 
 
