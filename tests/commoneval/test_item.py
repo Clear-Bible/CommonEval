@@ -107,7 +107,7 @@ class TestBooleanItem:
             prompt="Is this a test?",
             response=True,
         )
-        assert repr(item) == "<Item('bool.1', boolean): 'Is this a test?'->True>"
+        assert repr(item) == "<BooleanItem('bool.1', boolean): 'Is this a test?'->True>"
 
     def test_asdict(self) -> None:
         """Test conversion to dictionary."""
@@ -117,11 +117,11 @@ class TestBooleanItem:
             prompt="Is this a test?",
             response=True,
         )
-        assert item.asdict() == {
+        assert item.as_dict() == {
             "identifier": "bool.1",
-            "modality": "boolean",
             "prompt": "Is this a test?",
             "response": True,
+            "modality": "boolean",
         }
 
     def test_write_jsonline(self) -> None:
@@ -136,8 +136,8 @@ class TestBooleanItem:
             item.write_jsonline(buf)
             contents = buf.getvalue()
             assert contents == (
-                '{"identifier": "bool.1", "modality": "boolean", '
-                '"prompt": "Is this a test?", "response": true}\n'
+                '{"identifier": "bool.1", "prompt": "Is this a test?", '
+                '"response": true, "modality": "boolean"}\n'
             )
 
 
@@ -218,7 +218,7 @@ class TestTernaryItem:
         # Enum repr includes the enum class name
         assert (
             repr(item)
-            == "<Item('tern.1', ternary): 'Is this a test?'-><Ternary.TRUE: 'True'>>"
+            == "<TernaryItem('tern.1', ternary): 'Is this a test?'-><Ternary.TRUE: 'True'>>"
         )
 
     def test_asdict(self) -> None:
@@ -230,7 +230,7 @@ class TestTernaryItem:
             response=Ternary.UNKNOWN,
         )
         # The response should be serialized as the enum value
-        result = item.asdict()
+        result = item.as_dict()
         assert result["identifier"] == "tern.1"
         assert result["modality"] == "ternary"
         assert result["prompt"] == "Is this a test?"
@@ -345,7 +345,7 @@ class TestClosedSetItem:
             choices=["Yes", "No"],
         )
         # Integer response is repr'd without quotes
-        assert repr(item) == "<Item('mcq.1', choiceof2): 'Is this a test? A...'->0>"
+        assert repr(item) == "<ClosedSetItem('mcq.1', choiceof2): 'Is this a test? A...'->0>"
 
     def test_asdict(self) -> None:
         """Test conversion to dictionary includes choices and formats response as letter."""
@@ -356,7 +356,7 @@ class TestClosedSetItem:
             response=1,  # Index 1 = "Paris" = letter "B"
             choices=["London", "Paris", "Berlin", "Madrid"],
         )
-        result = item.asdict()
+        result = item.as_dict()
 
         # Response should be converted to letter
         assert result["identifier"] == "mcq.1"
@@ -371,7 +371,7 @@ class TestClosedSetItem:
         assert "A, B, C, or D" in result["taskPrompt"]
 
     def test_asdict_with_style_parameter(self) -> None:
-        """Test that asdict() accepts style parameter."""
+        """Test that as_dict() accepts style parameter."""
         item = ClosedSetItem(
             identifier="mcq.2",
             modality=Modality.CHOICEOF3,
@@ -379,7 +379,7 @@ class TestClosedSetItem:
             response=2,  # Index 2 = "Blue" = letter "C"
             choices=["Red", "Green", "Blue"],
         )
-        result = item.asdict(style="letter")
+        result = item.as_dict(style="letter")
 
         assert result["response"] == "C"
         assert "A) Red B) Green C) Blue" in result["taskPrompt"]
@@ -459,7 +459,7 @@ class TestOpenEndedItem:
             prompt="The capital of France is ___.",
             response="Paris",
         )
-        assert repr(item) == "<Item('open.1', cloze): 'The capital of Fr...'->'Paris'>"
+        assert repr(item) == "<OpenEndedItem('open.1', cloze): 'The capital of Fr...'->'Paris'>"
 
     def test_asdict(self) -> None:
         """Test conversion to dictionary."""
@@ -469,7 +469,7 @@ class TestOpenEndedItem:
             prompt="What is 2+2?",
             response="4",
         )
-        assert item.asdict() == {
+        assert item.as_dict() == {
             "identifier": "open.1",
             "modality": "singlevalue",
             "prompt": "What is 2+2?",
