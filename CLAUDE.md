@@ -31,7 +31,7 @@ pytest --cov=commoneval
 pytest tests/commoneval/test_item.py
 
 # Run a specific test
-pytest tests/commoneval/test_item.py::TestItem::test_init
+pytest tests/commoneval/test_item.py::TestBooleanItem::test_init_true
 ```
 
 ### Documentation
@@ -54,18 +54,25 @@ The library uses a two-level hierarchy:
    - References one or more JSONL files containing items via the `hasPart` field
    - Supports reading/writing items and metadata separately for efficiency
 
-2. **Item** (`commoneval/item.py`): A single prompt-response pair with metadata
-   - Each item has an identifier, modality, prompt, response, and optional support/taskPrompt
-   - Items are serialized to JSONL format (one JSON object per line)
-   - Items use dataclass validation to ensure consistency
+2. **Item Hierarchy** (`commoneval/item.py`): Type-safe classes for prompt-response pairs
+   - `BaseItem`: Abstract base class (cannot be instantiated directly)
+   - `BooleanItem`: For true/false questions (`response: bool`)
+   - `TernaryItem`: For true/false/unknown questions (`response: Ternary`)
+   - `ClosedSetItem`: For multiple-choice questions (`response: int` as 0-based index into `choices: list[str]`)
+   - `OpenEndedItem`: For open-ended text responses (`response: str`)
+   - Items are serialized to JSONL format (one JSON object per line) via `as_dict()` and `write_jsonline()`
+   - All items use dataclass validation with `kw_only=True` to ensure consistency
 
 ### Modality System
 
 Items support different response types via the `Modality` enum:
-- **Closed-set**: `BOOLEAN`, `CHOICEOF2`/`3`/`4`/`5`, `TERNARY` (True/False/Unknown)
-- **Open-ended**: `CLOZE`, `SINGLEVALUE`, `SHORTPROSE`, `LONGPROSE`
+- **Closed-set**: `BOOLEAN` (BooleanItem), `TERNARY` (TernaryItem), `CHOICEOF2`/`3`/`4`/`5` (ClosedSetItem)
+- **Open-ended**: `CLOZE`, `SINGLEVALUE`, `SHORTPROSE`, `LONGPROSE` (all use OpenEndedItem)
 
-For choice-based modalities (`CHOICEOF*`), the valid choices are stored in private attributes like `_choiceof4values` and must match the response value.
+For `ClosedSetItem`:
+- Response is an integer index (0-based) into the `choices` list
+- `as_dict()` converts the response to a letter (A/B/C/D/E) and adds a formatted `taskPrompt`
+- Choices are stored in `otherargs["choices"]` in the serialized output
 
 ### Data Organization
 
@@ -101,18 +108,21 @@ These are intended for initial dataset creation, not runtime use.
 ### Validation and Constraints
 
 Both Dataset and Item classes use `__post_init__` validation:
+- **BaseItem instantiation**: BaseItem cannot be instantiated directly - use concrete subclasses only
 - **Identifiers** must match `[-a-zA-Z0-9_.]+` (no spaces or special chars)
 - **Created dates** must be in the past
 - **File naming** must follow conventions: `{identifier}.jsonl` for single files, `{identifier}_NNN.jsonl` for multiple
-- **Response values** must match the modality type (e.g., boolean responses must be True/False)
+- **Response values** must match the modality type and subclass (e.g., BooleanItem requires `response: bool`)
+- **ClosedSetItem**: Response index must be non-negative and within range of choices list; number of choices must match modality (2-5)
 - **Difficulty** must be between 0.0 and 1.0
 
 ### Serialization Patterns
 
 - **Dataset metadata**: YAML format via `write_yaml()`/`read_yaml()`
-- **Items**: JSONL format via `write_jsonline()` (no direct read method on Item)
+- **Items**: JSONL format via `as_dict()` and `write_jsonline()` (no direct read method on Item classes)
 - **Dataset items**: Use `dataset.read_items()` to load items from JSONL into a Dataset instance
-- Items are stored in the `items` list attribute, populated by `read_items()`
+- Items are stored in the `items` list attribute (type: `list[BaseItem]`), populated by `read_items()`
+- **ClosedSetItem serialization**: `as_dict(style="letter")` converts integer response index to letter (A/B/C/D/E) and generates formatted `taskPrompt`
 
 ### Metadata Version
 
