@@ -177,6 +177,12 @@ class Dataset:
             itemclass: The class to use for the items (e.g., item.ClosedSetItem).
 
         """
+        mcq_modalities = (
+            "choiceof2",
+            "choiceof3",
+            "choiceof4",
+            "choiceof5",
+        )
         if not basepath:
             basepath = self._localPath
         # this drops any existing items
@@ -184,6 +190,13 @@ class Dataset:
         for part in self.hasPart:
             with jsonlines.open(basepath / part, "r") as reader:
                 for obj in reader:
+                    if "otherargs" in obj and "choices" in obj["otherargs"]:
+                        obj["choices"] = obj["otherargs"].get("choices", [])
+                    if obj["modality"] in mcq_modalities:
+                        letter = obj["response"]
+                        obj["response"] = ord(letter.lower()) - ord("a")
+                    # convert modality string to enum
+                    obj["modality"] = item.Modality(obj["modality"])
                     self.items.append(itemclass(**obj))
             print(f"Read {len(self.items)} items from {part}")
         return None
